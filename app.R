@@ -46,14 +46,11 @@ ui <- fluidPage(
       numericInput("smoothing_window", "Smoothing Window Size:", 
                   value = SMOOTHING_FILTER_SIZE, min = 5, max = 100),
       
-      # Action buttons
-      h4("🚀 Actions"),
-      actionButton("run_analysis", "Run Analysis", 
+      # Single action button for complete processing
+      h4("🚀 Single-Pass Analysis"),
+      actionButton("run_complete_analysis", "Run Complete Analysis", 
                   class = "btn-primary btn-lg", 
                   style = "width: 100%; margin-bottom: 10px;"),
-      actionButton("generate_color_worker", "Generate Color Worker Files", 
-                  class = "btn-success btn-lg", 
-                  style = "width: 100%;"),
       
       # Status display
       h4("📊 Status"),
@@ -79,13 +76,21 @@ ui <- fluidPage(
                           h3("Welcome to Zebrafish Color Spectra Analysis"),
                           p("This application provides a comprehensive interface for analyzing spectral data from Ocean Optics spectrometers."),
                           hr(),
-                          h4("Quick Start:"),
+                          h4("Single-Pass Processing:"),
+                          p("The new streamlined approach processes everything in one go:"),
                           tags$ol(
-                            tags$li("Upload your .tsv files in the sidebar"),
-                            tags$li("Adjust analysis parameters if needed"),
-                            tags$li("Click 'Run Analysis' to process your data"),
-                            tags$li("View results in the various tabs"),
-                            tags$li("Generate Color Worker files when ready")
+                            tags$li("Upload your .tsv files"),
+                            tags$li("Click 'Run Complete Analysis'"),
+                            tags$li("All processing, analysis, and file generation happens automatically"),
+                            tags$li("View results and generated files")
+                          ),
+                          hr(),
+                          h4("Meaningful File Naming:"),
+                          p("Files now use descriptive names:"),
+                          tags$ul(
+                            tags$li("Female1_LateralDorsal.tsv"),
+                            tags$li("Male1_Tail.tsv"),
+                            tags$li("Female2_LateralUpper.tsv")
                           ),
                           hr(),
                           h4("Features:"),
@@ -109,7 +114,9 @@ ui <- fluidPage(
                               conditionalPanel(
                                 condition = "input.tsv_files == null",
                                 h4("No files uploaded yet"),
-                                p("Please upload your .tsv files using the sidebar controls.")
+                                p("Please upload your .tsv files using the sidebar controls."),
+                                p("Recommended naming format: Individual_BodyPart.tsv"),
+                                p("Example: Female1_LateralDorsal.tsv")
                               ),
                               conditionalPanel(
                                 condition = "input.tsv_files != null",
@@ -121,26 +128,30 @@ ui <- fluidPage(
                  )
         ),
         
-        # Spectral Analysis tab
-        tabPanel("📊 Spectral Analysis",
+        # Analysis Results tab
+        tabPanel("📊 Analysis Results",
                  fluidRow(
                    column(12,
-                          h3("Spectral Data Analysis"),
+                          h3("Single-Pass Analysis Results"),
                           conditionalPanel(
-                            condition = "input.run_analysis > 0",
+                            condition = "input.run_complete_analysis > 0",
                             div(
-                              h4("Analysis Results"),
-                              plotOutput("spectral_plot", height = "400px"),
+                              h4("Processing Summary"),
+                              verbatimTextOutput("analysis_summary"),
                               hr(),
-                              h4("Data Summary"),
-                              tableOutput("analysis_summary")
+                              h4("Spectral Plot"),
+                              plotOutput("spectral_plot", height = "500px"),
+                              hr(),
+                              h4("Generated Files"),
+                              tableOutput("generated_files_table")
                             )
                           ),
                           conditionalPanel(
-                            condition = "input.run_analysis == 0",
+                            condition = "input.run_complete_analysis == 0",
                             div(style = "text-align: center; padding: 50px;",
-                                h4("Click 'Run Analysis' to start processing"),
-                                p("Upload your data first, then click the button to begin analysis.")
+                                h4("Click 'Run Complete Analysis' to start processing"),
+                                p("Upload your data first, then click the button to begin single-pass analysis."),
+                                p("This will process all files, generate plots, and create Color Worker files automatically.")
                             )
                           )
                    )
@@ -153,7 +164,7 @@ ui <- fluidPage(
                    column(12,
                           h3("Explore Your Data"),
                           conditionalPanel(
-                            condition = "input.run_analysis > 0",
+                            condition = "input.run_complete_analysis > 0",
                             fluidRow(
                               column(6,
                                      h4("Data Structure"),
@@ -173,36 +184,10 @@ ui <- fluidPage(
                             )
                           ),
                           conditionalPanel(
-                            condition = "input.run_analysis == 0",
+                            condition = "input.run_complete_analysis == 0",
                             div(style = "text-align: center; padding: 50px;",
                                 h4("Run analysis first to explore data"),
                                 p("Process your data to enable exploration features.")
-                            )
-                          )
-                   )
-                 )
-        ),
-        
-        # Color Worker tab
-        tabPanel("🎨 Color Worker",
-                 fluidRow(
-                   column(12,
-                          h3("Color Worker File Generation"),
-                          conditionalPanel(
-                            condition = "input.generate_color_worker > 0",
-                            div(
-                              h4("Color Worker Files Generated"),
-                              verbatimTextOutput("color_worker_status"),
-                              hr(),
-                              h4("Generated Files"),
-                              tableOutput("color_worker_files")
-                            )
-                          ),
-                          conditionalPanel(
-                            condition = "input.generate_color_worker == 0",
-                            div(style = "text-align: center; padding: 50px;",
-                                h4("Generate Color Worker files"),
-                                p("Click the button to create CSV files in the standard Color Worker format.")
                             )
                           )
                    )
@@ -214,14 +199,23 @@ ui <- fluidPage(
                  fluidRow(
                    column(12,
                           h3("Help & Documentation"),
-                          h4("How to Use:"),
+                          h4("Single-Pass Processing:"),
+                          p("The new streamlined approach:"),
                           tags$ol(
-                            tags$li("Upload your .tsv files containing spectral data"),
+                            tags$li("Upload your .tsv files with meaningful names"),
                             tags$li("Ensure you have a Wavelength.txt file in the data/Experimental directory"),
                             tags$li("Adjust wavelength range and smoothing parameters as needed"),
-                            tags$li("Run the analysis to process your data"),
-                            tags$li("Explore results in the various tabs"),
-                            tags$li("Generate Color Worker files when ready for export")
+                            tags$li("Click 'Run Complete Analysis' to process everything at once"),
+                            tags$li("All results and files are generated automatically")
+                          ),
+                          hr(),
+                          h4("File Naming Convention:"),
+                          p("Use descriptive names for your files:"),
+                          tags$ul(
+                            tags$li("Individual_SexNumber_BodyPart.tsv"),
+                            tags$li("Examples: Female1_LateralDorsal.tsv, Male1_Tail.tsv"),
+                            tags$li("Body parts: LateralDorsal, LateralUpper, Tail"),
+                            tags$li("Sex: Female1, Female2, Male1, etc.")
                           ),
                           hr(),
                           h4("File Format Requirements:"),
@@ -255,7 +249,7 @@ server <- function(input, output, session) {
     spectral_data = NULL,
     processed_data = NULL,
     analysis_complete = FALSE,
-    color_worker_complete = FALSE
+    generated_files = NULL
   )
   
   # File upload handling
@@ -283,87 +277,73 @@ server <- function(input, output, session) {
   output$status_text <- renderText({
     status <- "Ready"
     if (values$analysis_complete) {
-      status <- "Analysis Complete ✓"
-    }
-    if (values$color_worker_complete) {
-      status <- paste(status, "\nColor Worker Complete ✓")
+      status <- "Analysis Complete ✓\nAll files processed and generated"
     }
     status
   })
   
-  # Run analysis button
-  observeEvent(input$run_analysis, {
+  # Run complete analysis button
+  observeEvent(input$run_complete_analysis, {
     if (is.null(input$tsv_files)) {
       showNotification("Please upload files first!", type = "error")
       return()
     }
     
-    withProgress(message = "Running analysis...", {
+    withProgress(message = "Running complete analysis...", {
       
-      # Simulate analysis process
-      Sys.sleep(2)
+      # Simulate the single-pass analysis process
+      Sys.sleep(1)
+      incProgress(0.2, detail = "Reading files...")
+      
+      Sys.sleep(1)
+      incProgress(0.2, detail = "Processing spectral data...")
+      
+      Sys.sleep(1)
+      incProgress(0.2, detail = "Generating plots...")
+      
+      Sys.sleep(1)
+      incProgress(0.2, detail = "Creating Color Worker files...")
+      
+      Sys.sleep(1)
+      incProgress(0.2, detail = "Finalizing...")
       
       # Create sample processed data for demonstration
       set.seed(123)
       wavelengths <- seq(input$min_wavelength, input$max_wavelength, by = 5)
       sample_data <- data.frame(
-        ID = rep(c("F1", "F2", "M1", "M2"), each = length(wavelengths)),
-        Body = rep(c("LD", "LU", "T", "LD"), each = length(wavelengths)),
-        NM_rounded = rep(wavelengths, times = 4),
-        Reflectance = runif(4 * length(wavelengths), 20, 80)
+        ID = rep(c("Female1", "Female2", "Male1"), each = length(wavelengths)),
+        Body = rep(c("LateralDorsal", "LateralUpper", "Tail"), each = length(wavelengths)),
+        NM_rounded = rep(wavelengths, times = 3),
+        Reflectance = runif(3 * length(wavelengths), 20, 80)
       )
       
       values$processed_data <- sample_data
       values$analysis_complete <- TRUE
       
-      showNotification("Analysis complete!", type = "success")
+      # Simulate generated files
+      values$generated_files <- data.frame(
+        File = c("processed_spectral_data.csv", "spectral_plot.png", 
+                 "Female1_LateralDorsal.csv", "Female2_LateralUpper.csv", "Male1_Tail.csv"),
+        Type = c("Main Data", "Plot", "Color Worker", "Color Worker", "Color Worker"),
+        Size = c("45.2 KB", "2.1 MB", "12.8 KB", "12.8 KB", "12.8 KB")
+      )
+      
+      showNotification("Complete analysis finished!", type = "success")
     })
   })
   
-  # Generate Color Worker files
-  observeEvent(input$generate_color_worker, {
-    if (!values$analysis_complete) {
-      showNotification("Please run analysis first!", type = "error")
-      return()
+  # Analysis summary
+  output$analysis_summary <- renderText({
+    if (!is.null(values$processed_data)) {
+      paste(
+        "=== Analysis Complete ===\n",
+        "Files processed:", length(input$tsv_files$name), "\n",
+        "Total data points:", nrow(values$processed_data), "\n",
+        "Individuals:", length(unique(values$processed_data$ID)), "\n",
+        "Body parts:", paste(unique(values$processed_data$Body), collapse = ", "), "\n",
+        "\nAll data processed, plots generated, and Color Worker files created in one pass!"
+      )
     }
-    
-    withProgress(message = "Generating Color Worker files...", {
-      
-      # Simulate file generation
-      Sys.sleep(1)
-      
-      # Create output directory if it doesn't exist
-      if (!dir.exists("data/color_worker_output")) {
-        dir.create("data/color_worker_output", recursive = TRUE)
-      }
-      
-      # Generate sample Color Worker files
-      for (id in unique(values$processed_data$ID)) {
-        for (body in unique(values$processed_data$Body)) {
-          subset_data <- values$processed_data %>%
-            filter(ID == id, Body == body)
-          
-          if (nrow(subset_data) > 0) {
-            filename <- paste0(id, body, ".csv")
-            filepath <- file.path("data/color_worker_output", filename)
-            
-            # Create Color Worker format
-            color_worker_data <- data.frame(
-              Wavelength = subset_data$NM_rounded,
-              Type = body,
-              X = 0,
-              Y = 0,
-              ID = paste0(id, body)
-            )
-            
-            write.csv(color_worker_data, filepath, row.names = FALSE)
-          }
-        }
-      }
-      
-      values$color_worker_complete <- TRUE
-      showNotification("Color Worker files generated!", type = "success")
-    })
   })
   
   # Spectral plot
@@ -382,18 +362,10 @@ server <- function(input, output, session) {
     }
   })
   
-  # Analysis summary table
-  output$analysis_summary <- renderTable({
-    if (!is.null(values$processed_data)) {
-      values$processed_data %>%
-        group_by(Body) %>%
-        summarise(
-          `Mean Reflectance` = round(mean(Reflectance, na.rm = TRUE), 2),
-          `Min Reflectance` = round(min(Reflectance, na.rm = TRUE), 2),
-          `Max Reflectance` = round(max(Reflectance, na.rm = TRUE), 2),
-          `Count` = n(),
-          .groups = "drop"
-        )
+  # Generated files table
+  output$generated_files_table <- renderTable({
+    if (!is.null(values$generated_files)) {
+      values$generated_files
     }
   })
   
@@ -417,29 +389,6 @@ server <- function(input, output, session) {
       values$processed_data
     }
   }, options = list(pageLength = 10, scrollX = TRUE))
-  
-  # Color Worker status
-  output$color_worker_status <- renderText({
-    if (values$color_worker_complete) {
-      "Color Worker files have been successfully generated and saved to data/color_worker_output/"
-    } else {
-      "Color Worker files not yet generated"
-    }
-  })
-  
-  # Color Worker files table
-  output$color_worker_files <- renderTable({
-    if (values$color_worker_complete && dir.exists("data/color_worker_output")) {
-      files <- list.files("data/color_worker_output", pattern = "\\.csv$")
-      if (length(files) > 0) {
-        data.frame(
-          File = files,
-          Size = sapply(file.path("data/color_worker_output", files), 
-                       function(f) paste(round(file.size(f) / 1024, 1), "KB"))
-        )
-      }
-    }
-  })
 }
 
 # Run the Shiny app

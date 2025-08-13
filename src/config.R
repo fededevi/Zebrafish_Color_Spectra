@@ -17,8 +17,7 @@ FILTER_END <- 1458   # End of filter range
 WAVELENGTH_FILTER_START <- 278   # Start of wavelength file filter
 WAVELENGTH_FILTER_END <- 2056    # End of wavelength file filter
 
-# Color worker output configuration
-COLOR_WORKER_OUTPUT_DIR <- "data/color_worker_output"  # Output directory for color worker files
+# Color worker data preparation (kept in memory, not saved to files)
 COLOR_WORKER_MIN_WAVELENGTH <- 400  # Minimum wavelength for color worker (visible light)
 COLOR_WORKER_MAX_WAVELENGTH <- 700  # Maximum wavelength for color worker
 

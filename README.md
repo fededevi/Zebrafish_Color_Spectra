@@ -1,107 +1,147 @@
-# Zebrafish Color Spectra
+# Zebrafish Color Spectra Analysis
 
-A refactored R package for processing spectral data obtained from Ocean Optics spectrometer. The code is designed to read multiple .tsv files (OceanART format) from a directory and perform preliminary spectral analysis operations.
+A comprehensive R-based analysis pipeline for processing and analyzing spectral reflectance data from Ocean Optics spectrometers, specifically designed for zebrafish color studies.
 
-## Features
+## 🚀 **Single-Pass Processing**
 
-- **Robust File Handling**: Safe file reading with error handling and validation
-- **Flexible Path Configuration**: Uses relative paths instead of hardcoded Windows paths
-- **Modular Design**: Clean, well-structured functions for different processing steps
-- **Data Validation**: Checks for file existence and data integrity
-- **Comprehensive Logging**: Progress messages and error reporting
+This project now features a **streamlined single-pass approach** that processes all data, generates plots, and prepares Color Worker data in memory. No more waiting between steps or unnecessary file clutter!
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 Zebrafish_Color_Spectra/
-├── src/                    # Source code
-│   ├── Danio_Spectra.R    # Main processing script
-│   ├── ColWorkerReference.R # Color worker script
-│   └── config.R           # Configuration file
-├── data/                   # Data and output
-│   ├── Experimental/       # Input .tsv files
-│   ├── color_worker_output/ # Color worker CSV files
-│   └── processed_spectral_data.csv # Main output
-├── tests/                  # Test scripts
-│   └── test_script.R      # Test script
-├── .Rprofile              # R environment setup
-└── README.md              # This file
+├── src/                           # Source code
+│   ├── SpectralAnalysisEngine.R   # Main spectral analysis engine
+│   └── config.R                   # Configuration parameters
+├── data/                          # Data files
+│   └── Experimental/              # Experimental data
+│       ├── Female1_LateralDorsal.tsv
+│       ├── Male1_Tail.tsv
+│       ├── Female2_LateralUpper.tsv
+│       └── Wavelength.txt
+├── app.R                          # Shiny web interface
+├── run_spectral_analysis.R        # Comprehensive analysis runner
+├── .Rprofile                      # R environment setup
+└── README.md                      # This file
 ```
 
-## Usage
+## 🎯 **Key Features**
 
-### 1. Setup
+- **Single-Pass Processing**: Everything happens in one operation
+- **Memory-Based Storage**: Color Worker data kept in memory, not cluttering disk
+- **Meaningful File Naming**: Descriptive filenames (e.g., `Female1_LateralDorsal.tsv`)
+- **Automated Workflow**: Upload files → Click button → Get all results
+- **Interactive Shiny UI**: User-friendly web interface
+- **Comprehensive Output**: Plots, data files, and in-memory Color Worker data
+- **Error Handling**: Robust error checking and user feedback
 
-1. Place your .tsv files in the `data/Experimental/` subdirectory
-2. Ensure you have a `Wavelength.txt` file in the same directory
-3. Update the configuration variables in `src/config.R` if needed:
-   ```r
-   DATA_DIR <- "data/Experimental"  # Your data directory
-   WAVELENGTH_FILE <- "data/Experimental/Wavelength.txt"  # Wavelength reference
-   ```
+## 🚀 **Quick Start**
 
-### 2. Run Main Analysis
+### **Option 1: Shiny Web Interface (Recommended)**
+```bash
+# Launch the interactive web app
+R -e "shiny::runApp('.', port = 3838)"
+```
+Then open your browser to `http://localhost:3838`
 
+### **Option 2: Command Line (Single Script)**
+```bash
+# Run complete analysis with one command
+Rscript run_spectral_analysis.R
+```
+
+### **Option 3: Interactive R Session**
 ```r
-source("src/Danio_Spectra.R")
+# Load and run the analysis engine
+source("src/SpectralAnalysisEngine.R")
+results <- process_spectral_data_single_pass()
+
+# Access Color Worker data in memory
+color_worker_data <- results$color_worker_data
 ```
 
-This will:
-- Read and validate all .tsv files
-- Process transmission columns
-- Apply wavelength filtering (280-700 nm)
-- Smooth spectra using rolling mean
-- Calculate averages by individual, body part, and wavelength
-- Save results to `processed_spectral_data.csv`
+## 📊 **Data Requirements**
 
-### 3. Generate Color Worker Files
+### **Input Files**
+- **Spectral Data**: `.tsv` files with meaningful names (e.g., `Female1_LateralDorsal.tsv`)
+- **Wavelength Reference**: `Wavelength.txt` file in the data directory
+- **File Format**: Ocean Optics spectrometer output with 9 header rows
 
-```r
-source("src/ColWorkerReference.R")
-```
+### **Naming Convention**
+- **Individual_SexNumber_BodyPart.tsv**
+- **Examples**: 
+  - `Female1_LateralDorsal.tsv`
+  - `Male1_Tail.tsv`
+  - `Female2_LateralUpper.tsv`
 
-This creates individual CSV files in the standard Color Worker format.
+## ⚙️ **Configuration**
 
-## Dependencies
+Edit `src/config.R` to customize:
+- Data directory paths
+- Wavelength ranges
+- Smoothing parameters
+- Output file locations
+
+## 📦 **Dependencies**
 
 Required R packages:
 - `dplyr` - Data manipulation
 - `tidyr` - Data tidying
 - `stringr` - String operations
 - `ggplot2` - Plotting
-- `zoo` - Time series operations
+- `zoo` - Time series analysis
+- `shiny` - Web interface
 
-Install with:
-```r
-install.packages(c("dplyr", "tidyr", "stringr", "ggplot2", "zoo"))
+## 🔧 **Installation**
+
+```bash
+# Install R packages
+R -e "install.packages(c('dplyr', 'tidyr', 'stringr', 'ggplot2', 'zoo', 'shiny'), lib='~/R/library')"
 ```
 
-## Data Structure
+## 📈 **Output Files**
 
-The processed data includes:
-- **ID**: Individual identifier
-- **Body**: Body part (LD, LU, T for Line Down, Line Up, Tail)
-- **NM_rounded**: Wavelength in nanometers (rounded)
-- **Reflectance**: Spectral reflectance values
+The single-pass analysis generates:
+1. **Main Data**: `processed_spectral_data.csv`
+2. **Spectral Plot**: `spectral_plot.png`
+3. **Color Worker Data**: Available in memory for further analysis
+4. **Summary Statistics**: Console output with processing details
 
-## Improvements Made
+## 🎨 **Color Worker Integration**
 
-- ✅ Removed hardcoded Windows file paths
-- ✅ Added comprehensive error handling
-- ✅ Fixed syntax errors and incomplete function calls
-- ✅ Improved code structure and readability
-- ✅ Added input validation and progress logging
-- ✅ Made code portable across different systems
-- ✅ Added proper documentation and comments
+Color Worker data is prepared in memory with:
+- Wavelength data in 5nm increments
+- Reflectance values with smoothing applied
+- Proper formatting for color analysis workflows
+- **No disk clutter** - data stays in memory for immediate use
 
-## Troubleshooting
+## 🐛 **Troubleshooting**
 
-- **"Directory does not exist"**: Check that your `DATA_DIR` path in `src/config.R` is correct
-- **"No .tsv files found"**: Ensure your data files have .tsv extension and are in `data/Experimental/`
-- **"Wavelength file not found"**: Verify `Wavelength.txt` exists in `data/Experimental/`
+### **Common Issues**
+1. **Missing packages**: Ensure all required R packages are installed
+2. **File paths**: Ensure data is in the correct directories
+3. **Permissions**: Check file read/write permissions
+4. **Format errors**: Verify TSV file structure matches requirements
 
-## Notes
+## 📝 **Notes**
 
-- Wavelength filtering parameters (278:1, 1458:2056) are specific to your spectrometer configuration
-- Adjust these values if using different equipment
-- The script automatically handles missing or corrupted files with warnings
+- **Single-Pass Processing**: All analysis steps are now consolidated into one function
+- **Memory-Based**: Color Worker data kept in memory, not saved to disk
+- **Meaningful Names**: Files use descriptive names instead of abbreviations
+- **Automated Workflow**: No manual intervention required between steps
+- **Error Handling**: Comprehensive error checking and user feedback
+- **Scalability**: Handles multiple files and different naming conventions
+- **Streamlined**: Removed redundant files and scripts for cleaner project structure
+- **Efficient**: No unnecessary file I/O operations
+
+## 🤝 **Contributing**
+
+This project uses a modular architecture with:
+- Clear separation of concerns
+- Configurable parameters
+- Comprehensive error handling
+- User-friendly interfaces
+
+## 📄 **License**
+
+This project is designed for scientific research and educational purposes.
